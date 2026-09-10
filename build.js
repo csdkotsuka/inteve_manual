@@ -210,7 +210,7 @@ function renderSidebar(currentFile) {
       <input type="text" id="manual-search" class="sidebar-search-input" placeholder="マニュアルを検索..." autocomplete="off">
     </div>
   </div>
-  <div class="sidebar-nav">
+  <div class="sidebar-nav" id="sidebar-nav-container">
     <a href="index.html" class="nav-item ${currentFile === 'top.md' ? 'active' : ''}">
       <span class="flex items-center gap-2"><i class="fa-solid fa-house text-xs opacity-70"></i> トップページ</span>
     </a>
@@ -225,8 +225,8 @@ function renderSidebar(currentFile) {
     const portalUrl = mod.portal ? getHtmlFileName(mod.portal) : '#';
 
     html += `
-    <details name="sidebar-accordion" class="nav-group" ${isCurrentInMod ? 'open' : ''}>
-      <summary>
+    <details class="nav-group" ${isCurrentInMod ? 'open' : ''}>
+      <summary class="nav-group-summary">
         <span class="flex items-center gap-2">
           <i class="${mod.icon} text-xs text-[#00BCD4]"></i>
           <span>${mod.name}</span>
@@ -396,17 +396,23 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 
   <!-- Scripts -->
   <script>
-    // Exclusive Accordion behavior for sidebar
-    const navGroups = document.querySelectorAll('details.nav-group');
-    navGroups.forEach(group => {
-      group.addEventListener('toggle', () => {
-        if (group.open) {
-          navGroups.forEach(other => {
-            if (other !== group && other.open) {
-              other.open = false;
-            }
-          });
-        }
+    // Robust Exclusive Accordion for Sidebar Menu
+    document.addEventListener('DOMContentLoaded', () => {
+      const summaries = document.querySelectorAll('details.nav-group > summary');
+      summaries.forEach(summary => {
+        summary.addEventListener('click', (e) => {
+          const currentGroup = summary.parentElement;
+          const isCurrentlyOpen = currentGroup.hasAttribute('open');
+
+          // If it is currently closed, opening it will close all other groups
+          if (!isCurrentlyOpen) {
+            document.querySelectorAll('details.nav-group').forEach(other => {
+              if (other !== currentGroup) {
+                other.removeAttribute('open');
+              }
+            });
+          }
+        });
       });
     });
 
@@ -457,7 +463,7 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 
         if (query) {
           groups.forEach(g => {
-            g.open = true;
+            g.setAttribute('open', '');
           });
         }
       });
