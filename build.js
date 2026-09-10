@@ -370,7 +370,11 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 
   <!-- Lightbox Modal for Images -->
   <div id="lightbox" class="lightbox-modal" onclick="closeLightbox()">
-    <img id="lightbox-image" class="lightbox-img" src="" alt="Zoomed Screenshot">
+    <button type="button" class="fixed top-6 right-6 text-white/90 hover:text-white text-xs sm:text-sm bg-black/50 hover:bg-black/80 px-4 py-2 rounded-full border border-white/30 flex items-center gap-2 transition cursor-pointer z-[110]" onclick="closeLightbox()">
+      <i class="fa-solid fa-xmark text-base"></i>
+      <span>閉じる (Esc)</span>
+    </button>
+    <img id="lightbox-image" class="lightbox-img" src="" alt="Zoomed Screenshot" onclick="event.stopPropagation()">
   </div>
 
   <!-- Global Footer -->
@@ -444,12 +448,24 @@ function renderFullHTML({ title, content, currentFile, headings }) {
         const lbImg = document.getElementById('lightbox-image');
         lbImg.src = img.src;
         lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
       });
     });
 
     function closeLightbox() {
-      document.getElementById('lightbox').classList.remove('active');
+      const lb = document.getElementById('lightbox');
+      if (lb) {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+      }
     }
+
+    // Close Lightbox on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        closeLightbox();
+      }
+    });
 
     // Mobile Sidebar Drawer
     const menuToggle = document.getElementById('mobile-menu-toggle');
