@@ -152,12 +152,14 @@ body {
 }
 
 /* Accordion Group */
-details.nav-group {
+.nav-group {
   margin-bottom: 4px;
 }
 
-details.nav-group summary {
-  list-style: none;
+.nav-group-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -169,18 +171,15 @@ details.nav-group summary {
   color: var(--color-text-main);
   transition: all 0.15s ease;
   user-select: none;
+  text-align: left;
 }
 
-details.nav-group summary::-webkit-details-marker {
-  display: none;
-}
-
-details.nav-group summary:hover {
+.nav-group-btn:hover {
   background-color: #f1f5f9;
   color: var(--color-primary);
 }
 
-details.nav-group[open] summary {
+.nav-group.is-open .nav-group-btn {
   color: var(--color-primary);
   font-weight: 700;
 }
@@ -191,7 +190,7 @@ details.nav-group[open] summary {
   color: #94a3b8;
 }
 
-details.nav-group[open] .nav-group-chevron {
+.nav-group.is-open .nav-group-chevron {
   transform: rotate(90deg);
 }
 
@@ -201,6 +200,10 @@ details.nav-group[open] .nav-group-chevron {
   border-left: 1.5px solid var(--color-border);
   margin-top: 4px;
   margin-bottom: 8px;
+}
+
+.nav-sub-items.hidden {
+  display: none !important;
 }
 
 /* Main Content Area */

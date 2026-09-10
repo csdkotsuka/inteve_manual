@@ -225,22 +225,22 @@ function renderSidebar(currentFile) {
     const portalUrl = mod.portal ? getHtmlFileName(mod.portal) : '#';
 
     html += `
-    <details class="nav-group" ${isCurrentInMod ? 'open' : ''}>
-      <summary class="nav-group-summary">
+    <div class="nav-group ${isCurrentInMod ? 'is-open' : ''}">
+      <button type="button" class="nav-group-btn">
         <span class="flex items-center gap-2">
           <i class="${mod.icon} text-xs text-[#00BCD4]"></i>
           <span>${mod.name}</span>
         </span>
         <i class="fa-solid fa-chevron-right nav-group-chevron"></i>
-      </summary>
-      <div class="nav-sub-items">
+      </button>
+      <div class="nav-sub-items ${isCurrentInMod ? '' : 'hidden'}">
         ${mod.portal ? `<a href="${portalUrl}" class="nav-item text-xs font-semibold ${currentFile === mod.portal ? 'active' : ''}">📌 ${mod.name} ポータル</a>` : ''}
         ${mod.pages.map(p => {
           const isActive = currentFile === p.file;
           return `<a href="${getHtmlFileName(p.file)}" class="nav-item text-xs ${isActive ? 'active' : ''}">${p.title}</a>`;
         }).join('')}
       </div>
-    </details>
+    </div>
     `;
   });
 
@@ -396,25 +396,46 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 
   <!-- Scripts -->
   <script>
-    // Robust Exclusive Accordion for Sidebar Menu
-    document.addEventListener('DOMContentLoaded', () => {
-      const summaries = document.querySelectorAll('details.nav-group > summary');
-      summaries.forEach(summary => {
-        summary.addEventListener('click', (e) => {
-          const currentGroup = summary.parentElement;
-          const isCurrentlyOpen = currentGroup.hasAttribute('open');
+    (function() {
+      // 100% Reliable Exclusive Accordion (Button-based, no details/summary native interference)
+      function initAccordion() {
+        const buttons = document.querySelectorAll('.nav-group-btn');
+        buttons.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const group = btn.closest('.nav-group');
+            if (!group) return;
+            const subItems = group.querySelector('.nav-sub-items');
+            const isCurrentlyOpen = group.classList.contains('is-open');
 
-          // If it is currently closed, opening it will close all other groups
-          if (!isCurrentlyOpen) {
-            document.querySelectorAll('details.nav-group').forEach(other => {
-              if (other !== currentGroup) {
-                other.removeAttribute('open');
+            // Close ALL other groups unconditionally
+            document.querySelectorAll('.nav-group').forEach(other => {
+              if (other !== group) {
+                other.classList.remove('is-open');
+                const otherSub = other.querySelector('.nav-sub-items');
+                if (otherSub) otherSub.classList.add('hidden');
               }
             });
-          }
+
+            // Toggle clicked group
+            if (isCurrentlyOpen) {
+              group.classList.remove('is-open');
+              if (subItems) subItems.classList.add('hidden');
+            } else {
+              group.classList.add('is-open');
+              if (subItems) subItems.classList.remove('hidden');
+            }
+          });
         });
-      });
-    });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccordion);
+      } else {
+        initAccordion();
+      }
+    })();
 
     // Lightbox Functionality
     document.querySelectorAll('.markdown-body img').forEach(img => {
@@ -450,7 +471,7 @@ function renderFullHTML({ title, content, currentFile, headings }) {
       searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
         const navItems = document.querySelectorAll('.nav-sub-items .nav-item');
-        const groups = document.querySelectorAll('details.nav-group');
+        const groups = document.querySelectorAll('.nav-group');
 
         navItems.forEach(item => {
           const text = item.textContent.toLowerCase();
@@ -461,11 +482,13 @@ function renderFullHTML({ title, content, currentFile, headings }) {
           }
         });
 
-        if (query) {
-          groups.forEach(g => {
-            g.setAttribute('open', '');
-          });
-        }
+        groups.forEach(g => {
+          const sub = g.querySelector('.nav-sub-items');
+          if (query) {
+            g.classList.add('is-open');
+            if (sub) sub.classList.remove('hidden');
+          }
+        });
       });
     }
   </script>
