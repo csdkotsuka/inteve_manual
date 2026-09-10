@@ -201,7 +201,7 @@ function getHtmlFileName(mdFile) {
   return `${encodeURIComponent(base)}.html`;
 }
 
-// Build Sidebar HTML
+// Build Sidebar HTML with exclusive accordion support
 function renderSidebar(currentFile) {
   let html = `
   <div class="sidebar-search-box">
@@ -220,12 +220,12 @@ function renderSidebar(currentFile) {
     <div class="nav-group-title">機能モジュール一覧</div>
 `;
 
-  MODULES.forEach((mod, idx) => {
+  MODULES.forEach((mod) => {
     const isCurrentInMod = mod.pages.some(p => p.file === currentFile) || mod.portal === currentFile;
     const portalUrl = mod.portal ? getHtmlFileName(mod.portal) : '#';
 
     html += `
-    <details class="nav-group" ${isCurrentInMod || idx === 0 ? 'open' : ''}>
+    <details name="sidebar-accordion" class="nav-group" ${isCurrentInMod ? 'open' : ''}>
       <summary>
         <span class="flex items-center gap-2">
           <i class="${mod.icon} text-xs text-[#00BCD4]"></i>
@@ -396,6 +396,20 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 
   <!-- Scripts -->
   <script>
+    // Exclusive Accordion behavior for sidebar
+    const navGroups = document.querySelectorAll('details.nav-group');
+    navGroups.forEach(group => {
+      group.addEventListener('toggle', () => {
+        if (group.open) {
+          navGroups.forEach(other => {
+            if (other !== group && other.open) {
+              other.open = false;
+            }
+          });
+        }
+      });
+    });
+
     // Lightbox Functionality
     document.querySelectorAll('.markdown-body img').forEach(img => {
       img.addEventListener('click', () => {
