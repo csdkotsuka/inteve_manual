@@ -411,6 +411,29 @@ body {
   background-color: #f0fdf4;
 }
 
+/* Clickable Table Rows */
+.markdown-body tr.clickable-row {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.markdown-body tr.clickable-row:hover td {
+  background-color: #e0f2fe !important;
+}
+
+.markdown-body tr.clickable-row a {
+  text-decoration: none;
+}
+
+.markdown-body tr.clickable-row:hover a {
+  color: var(--color-primary-light);
+}
+
+/* Scroll Offset for In-page Anchors */
+[id^="step-"], #schedule-summary {
+  scroll-margin-top: 88px;
+}
+
 /* Upsell CTA Box */
 .upsell-banner {
   background: linear-gradient(135deg, #004080 0%, #002d5a 100%);

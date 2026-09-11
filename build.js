@@ -515,6 +515,28 @@ function renderFullHTML({ title, content, currentFile, headings }) {
         });
       });
     }
+
+    // Make table rows with internal anchor links clickable as full rows
+    document.querySelectorAll('.markdown-body table tbody tr').forEach(tr => {
+      const anchor = tr.querySelector('a[href^="#"]');
+      if (anchor) {
+        tr.classList.add('clickable-row');
+        tr.title = 'クリックしてこのステップの説明へジャンプ';
+        tr.addEventListener('click', (e) => {
+          if (e.target.tagName === 'A' && e.target.getAttribute('href') !== anchor.getAttribute('href')) {
+            return;
+          }
+          const targetId = anchor.getAttribute('href');
+          const targetElem = document.querySelector(targetId);
+          if (targetElem) {
+            targetElem.scrollIntoView({ behavior: 'smooth' });
+            history.pushState(null, '', targetId);
+          } else {
+            window.location.hash = targetId;
+          }
+        });
+      }
+    });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
