@@ -573,6 +573,23 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <script>
     if (document.querySelector('.mermaid') && typeof mermaid !== 'undefined') {
       mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+      mermaid.run().then(() => {
+        document.querySelectorAll('.mermaid a').forEach(a => {
+          const href = a.getAttribute('href') || a.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            a.addEventListener('click', (e) => {
+              e.preventDefault();
+              const target = document.querySelector(href);
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                history.pushState(null, '', href);
+              } else {
+                window.location.hash = href;
+              }
+            });
+          }
+        });
+      }).catch(() => {});
     }
   </script>
 </body>

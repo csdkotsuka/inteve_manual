@@ -599,3 +599,19 @@ body {
     gap: 6px;
   }
 }
+
+/* Mermaid Clickable Nodes Styling */
+.mermaid .node.clickable, .mermaid g.clickable, .mermaid a {
+  cursor: pointer !important;
+}
+
+.mermaid .node.clickable:hover rect,
+.mermaid .node.clickable:hover polygon,
+.mermaid .node.clickable:hover circle,
+.mermaid a:hover rect,
+.mermaid a:hover polygon {
+  filter: drop-shadow(0 4px 12px rgba(2, 132, 199, 0.45));
+  stroke: #0284c7 !important;
+  stroke-width: 3px !important;
+  transition: all 0.2s ease;
+}
