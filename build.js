@@ -326,7 +326,7 @@ function renderFullHTML({ title, content, currentFile, headings }) {
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
         <a href="index.html" class="flex items-center space-x-2.5 transition group">
-          <img src="images/inteve_logo.png" alt="INTEVE SCHOOL" class="h-7 sm:h-8 w-auto object-contain transition group-hover:opacity-90">
+          <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-7 sm:h-8 w-auto object-contain transition group-hover:opacity-90">
           <span class="text-[11px] font-bold tracking-wider uppercase bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full border border-cyan-400/30 hidden sm:inline">Manual</span>
         </a>
       </div>
@@ -400,10 +400,9 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <!-- Global Footer -->
   <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center space-x-2.5">
-        <img src="images/favicon.png" alt="INTEVE Logo" class="w-5 h-5 object-contain">
-        <span class="font-bold text-slate-200">INTEVE SCHOOL</span>
-        <span>— Educational DX Solution for Medical Schools</span>
+      <div class="flex items-center space-x-3">
+        <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-6 w-auto object-contain opacity-90">
+        <span class="text-slate-400 text-xs hidden sm:inline">— Educational DX Solution for Medical Schools</span>
       </div>
       <div class="flex items-center space-x-4 text-slate-400">
         <a href="sitemap.html" class="hover:text-cyan-400 transition">サイトマップ</a>
