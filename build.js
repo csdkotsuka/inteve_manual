@@ -326,7 +326,7 @@ function renderFullHTML({ title, content, currentFile, headings }) {
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
         <a href="index.html" class="flex items-center space-x-2.5 transition group">
-          <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-7 sm:h-8 w-auto object-contain transition group-hover:opacity-90">
+          <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-10 sm:h-12 w-auto object-contain transition group-hover:opacity-90">
           <span class="text-[11px] font-bold tracking-wider uppercase bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full border border-cyan-400/30 hidden sm:inline">Manual</span>
         </a>
       </div>
