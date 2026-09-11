@@ -385,6 +385,13 @@ function renderFullHTML({ title, content, currentFile, headings }) {
     <img id="lightbox-image" class="lightbox-img" src="" alt="Zoomed Screenshot" onclick="event.stopPropagation()">
   </div>
 
+  <!-- Floating Back to Flowchart Button -->
+  <a id="floating-flowchart-btn" href="#timeline-flowchart" class="floating-flowchart-btn" aria-label="年間業務タイムライン＆全体フローチャートへ戻る">
+    <i class="fa-solid fa-diagram-project"></i>
+    <span>フローチャートへ戻る</span>
+    <i class="fa-solid fa-arrow-up text-[11px] opacity-75"></i>
+  </a>
+
   <!-- Global Footer -->
   <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -537,6 +544,30 @@ function renderFullHTML({ title, content, currentFile, headings }) {
         });
       }
     });
+
+    // Floating Back to Flowchart Button Logic
+    const floatingFlowchartBtn = document.getElementById('floating-flowchart-btn');
+    const flowchartTarget = document.getElementById('timeline-flowchart');
+    if (floatingFlowchartBtn && flowchartTarget) {
+      const handleScroll = () => {
+        const rect = flowchartTarget.getBoundingClientRect();
+        if (rect.bottom < 50) {
+          floatingFlowchartBtn.classList.add('is-visible');
+        } else {
+          floatingFlowchartBtn.classList.remove('is-visible');
+        }
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll();
+
+      floatingFlowchartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        flowchartTarget.scrollIntoView({ behavior: 'smooth' });
+        history.pushState(null, '', '#timeline-flowchart');
+      });
+    } else if (floatingFlowchartBtn) {
+      floatingFlowchartBtn.remove();
+    }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
