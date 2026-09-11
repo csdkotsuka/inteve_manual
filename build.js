@@ -11,6 +11,13 @@ renderer.heading = function({ tokens, depth, raw }) {
   return `<h${depth} id="${id}">${text}</h${depth}>\n`;
 };
 
+renderer.code = function({ text, lang }) {
+  if (lang === 'mermaid') {
+    return `<div class="mermaid my-6 p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex justify-center">${text}</div>\n`;
+  }
+  return `<pre><code class="language-${lang || 'text'}">${text}</code></pre>\n`;
+};
+
 marked.setOptions({
   renderer: renderer,
   gfm: true,
@@ -113,6 +120,7 @@ const MODULES = [
     icon: 'fa-solid fa-handshake-angle',
     portal: '実習管理ポータル.md',
     pages: [
+      { title: '🗺️ 実習業務 年間運用フロー', file: '実習業務-年間運用フロー.md' },
       { title: 'INTEVE LINK プラットフォーム', file: 'inteve-link.md' },
       { title: '実習情報 ポータル', file: '実習情報-ポータル.md' },
       { title: '実習管理 実習仮配置', file: '実習管理-実習仮配置.md' },
@@ -506,6 +514,12 @@ function renderFullHTML({ title, content, currentFile, headings }) {
           }
         });
       });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    if (document.querySelector('.mermaid') && typeof mermaid !== 'undefined') {
+      mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
     }
   </script>
 </body>
