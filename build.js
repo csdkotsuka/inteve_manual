@@ -35,6 +35,10 @@ fs.mkdirSync(DIST_DIR, { recursive: true });
 
 if (fs.existsSync(IMAGES_DIR)) {
   fs.cpSync(IMAGES_DIR, path.join(DIST_DIR, 'images'), { recursive: true });
+  const faviconPath = path.join(IMAGES_DIR, 'favicon.png');
+  if (fs.existsSync(faviconPath)) {
+    fs.copyFileSync(faviconPath, path.join(DIST_DIR, 'favicon.png'));
+  }
 }
 
 if (fs.existsSync(CSS_DIR)) {
@@ -305,6 +309,8 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title ? `${title} | ` : ''}INTEVE SCHOOL 運用マニュアル</title>
   <meta name="description" content="医療系専門学校・大学向け教育DXソリューション INTEVE SCHOOL の公式運用マニュアルです。">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -319,10 +325,9 @@ function renderFullHTML({ title, content, currentFile, headings }) {
         <button id="mobile-menu-toggle" class="lg:hidden text-white hover:text-cyan-300 p-1.5 rounded-md focus:outline-none">
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
-        <a href="index.html" class="flex items-center space-x-2.5 text-white hover:text-cyan-300 transition">
-          <i class="fa-solid fa-graduation-cap text-2xl text-[#00BCD4]"></i>
-          <span class="font-extrabold text-lg tracking-wide">INTEVE SCHOOL</span>
-          <span class="text-xs bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full border border-cyan-400/30 hidden sm:inline">Manual</span>
+        <a href="index.html" class="flex items-center space-x-2.5 transition group">
+          <img src="images/inteve_logo.png" alt="INTEVE SCHOOL" class="h-7 sm:h-8 w-auto object-contain transition group-hover:opacity-90">
+          <span class="text-[11px] font-bold tracking-wider uppercase bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full border border-cyan-400/30 hidden sm:inline">Manual</span>
         </a>
       </div>
       <nav class="flex items-center space-x-3 sm:space-x-5 text-sm font-medium">
@@ -395,7 +400,8 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <!-- Global Footer -->
   <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2.5">
+        <img src="images/favicon.png" alt="INTEVE Logo" class="w-5 h-5 object-contain">
         <span class="font-bold text-slate-200">INTEVE SCHOOL</span>
         <span>— Educational DX Solution for Medical Schools</span>
       </div>
