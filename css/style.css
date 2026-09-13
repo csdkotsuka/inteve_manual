@@ -498,9 +498,11 @@ body {
   box-shadow: 0 6px 16px rgba(255, 102, 0, 0.45);
 }
 
-/* Right Sidebar Container (TOC & Search Results) */
+/* ==========================================================================
+   On-Page TOC (Right Sidebar)
+   ========================================================================== */
 .right-sidebar {
-  width: 280px;
+  width: 260px;
   flex-shrink: 0;
   padding: 32px 16px 32px 0;
   font-size: 0.82rem;
@@ -512,10 +514,75 @@ body {
   z-index: 30;
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1200px) {
   .right-sidebar {
     display: block;
   }
+}
+
+.toc-sidebar {
+  width: 100%;
+}
+
+.toc-title {
+  font-weight: 700;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.toc-link {
+  display: block !important; /* 改行：各目次リンクを独立した1行として確実に表示 */
+  padding: 5px 8px;
+  margin-bottom: 2px;
+  color: #475569;
+  text-decoration: none !important;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  border-radius: var(--radius-sm);
+  border-left: 2px solid transparent;
+  transition: all 0.15s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toc-link:hover {
+  color: var(--color-primary);
+  background-color: #f1f5f9;
+  border-left-color: var(--color-secondary);
+}
+
+.toc-link.font-medium {
+  font-weight: 600;
+  color: #334155;
+}
+
+.toc-link.pl-3 {
+  padding-left: 18px;
+}
+
+.toc-link.text-xs {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+/* Scroll Offset for In-page Headings & Anchors */
+html {
+  scroll-behavior: smooth;
+}
+
+.markdown-body h1[id],
+.markdown-body h2[id],
+.markdown-body h3[id],
+.markdown-body h4[id],
+.markdown-body h5[id],
+.markdown-body h6[id] {
+  scroll-margin-top: 84px;
 }
 /* ==========================================================================
    Search Workspace (3-Column Layout during Search)

@@ -2,12 +2,24 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 
+// Helper: Unified slugify for consistent heading IDs
+function slugify(text) {
+  const clean = (text || '')
+    .replace(/^#{1,6}\s+/, '')
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    .replace(/[*_`]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return encodeURIComponent(clean || 'heading');
+}
+
 // Configure marked with custom heading renderer to add id attributes
 const renderer = new marked.Renderer();
 renderer.heading = function({ tokens, depth, raw }) {
   const text = this.parser.parseInline(tokens);
-  const cleanText = raw.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1').replace(/[*_`]/g, '').trim();
-  const id = encodeURIComponent(cleanText.toLowerCase().replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g, '-'));
+  const id = slugify(raw);
   return `<h${depth} id="${id}">${text}</h${depth}>\n`;
 };
 
@@ -297,14 +309,18 @@ function renderFullHTML({ title, content, currentFile, headings }) {
     return `href="${encodeURIComponent(decodeURIComponent(p1))}.html${hash}"`;
   });
 
-  // Right Sidebar (TOC & Search Results)
+  // Right Sidebar (TOC)
   let tocContent = '';
-  if (headings && headings.length > 1) {
+  if (headings && headings.length > 0) {
     tocContent = `
       <div id="toc-panel" class="toc-sidebar">
         <div class="toc-title"><i class="fa-solid fa-list-ul mr-1.5"></i> このページの目次</div>
         <nav class="space-y-1">
-          ${headings.map(h => `<a href="#${h.id}" class="toc-link ${h.level === 3 ? 'pl-3 text-xs' : 'font-medium'}">${h.text}</a>`).join('')}
+          ${headings.map(h => `
+            <a href="#${h.id}" class="toc-link ${h.level === 3 ? 'pl-3 text-xs' : 'font-medium'}" title="${h.text}">
+              ${h.text}
+            </a>
+          `).join('')}
         </nav>
       </div>
     `;
@@ -578,6 +594,22 @@ function renderFullHTML({ title, content, currentFile, headings }) {
       });
     }
 
+    // Smooth scrolling for TOC links
+    document.querySelectorAll('.toc-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const hash = link.getAttribute('href');
+        if (hash && hash.startsWith('#')) {
+          e.preventDefault();
+          const rawId = hash.slice(1);
+          const target = document.getElementById(rawId) || document.getElementById(decodeURIComponent(rawId));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            history.pushState(null, '', hash);
+          }
+        }
+      });
+    });
+
     // Make table rows with internal anchor links clickable as full rows
     document.querySelectorAll('.markdown-body table tbody tr').forEach(tr => {
       const anchor = tr.querySelector('a[href^="#"]');
@@ -589,7 +621,8 @@ function renderFullHTML({ title, content, currentFile, headings }) {
             return;
           }
           const targetId = anchor.getAttribute('href');
-          const targetElem = document.querySelector(targetId);
+          const rawId = targetId.slice(1);
+          const targetElem = document.getElementById(rawId) || document.getElementById(decodeURIComponent(rawId));
           if (targetElem) {
             targetElem.scrollIntoView({ behavior: 'smooth' });
             history.pushState(null, '', targetId);
@@ -694,8 +727,8 @@ mdFiles.forEach(file => {
   for (const m of headingMatches) {
     const level = m[1].length;
     const rawText = m[2].trim();
-    const cleanText = rawText.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1').replace(/[*_`]/g, '');
-    const id = encodeURIComponent(cleanText.toLowerCase().replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g, '-'));
+    const cleanText = rawText.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1').replace(/[*_`]/g, '').trim();
+    const id = slugify(cleanText);
     headings.push({ level, text: cleanText, id });
   }
 
