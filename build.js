@@ -27,6 +27,7 @@ marked.setOptions({
 const DIST_DIR = path.join(__dirname, 'dist');
 const IMAGES_DIR = path.join(__dirname, 'images');
 const CSS_DIR = path.join(__dirname, 'css');
+const JS_DIR = path.join(__dirname, 'js');
 
 if (fs.existsSync(DIST_DIR)) {
   fs.rmSync(DIST_DIR, { recursive: true, force: true });
@@ -43,6 +44,10 @@ if (fs.existsSync(IMAGES_DIR)) {
 
 if (fs.existsSync(CSS_DIR)) {
   fs.cpSync(CSS_DIR, path.join(DIST_DIR, 'css'), { recursive: true });
+}
+
+if (fs.existsSync(JS_DIR)) {
+  fs.cpSync(JS_DIR, path.join(DIST_DIR, 'js'), { recursive: true });
 }
 
 // Module structure for Navigation Sidebar
@@ -217,9 +222,12 @@ function getHtmlFileName(mdFile) {
 function renderSidebar(currentFile) {
   let html = `
   <div class="sidebar-search-box">
-    <div class="relative">
-      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+    <div class="relative flex items-center">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs pointer-events-none"></i>
       <input type="text" id="manual-search" class="sidebar-search-input" placeholder="マニュアルを検索..." autocomplete="off">
+      <button type="button" id="manual-search-clear" class="sidebar-search-clear hidden" title="検索をクリア" aria-label="検索をクリア">
+        <i class="fa-solid fa-circle-xmark"></i>
+      </button>
     </div>
   </div>
   <div class="sidebar-nav" id="sidebar-nav-container">
@@ -289,18 +297,31 @@ function renderFullHTML({ title, content, currentFile, headings }) {
     return `href="${encodeURIComponent(decodeURIComponent(p1))}.html${hash}"`;
   });
 
-  // TOC HTML
-  let tocHtml = '';
+  // Right Sidebar (TOC & Search Results)
+  let tocContent = '';
   if (headings && headings.length > 1) {
-    tocHtml = `
-      <aside class="toc-sidebar">
+    tocContent = `
+      <div id="toc-panel" class="toc-sidebar">
         <div class="toc-title"><i class="fa-solid fa-list-ul mr-1.5"></i> このページの目次</div>
         <nav class="space-y-1">
           ${headings.map(h => `<a href="#${h.id}" class="toc-link ${h.level === 3 ? 'pl-3 text-xs' : 'font-medium'}">${h.text}</a>`).join('')}
         </nav>
-      </aside>
+      </div>
+    `;
+  } else {
+    tocContent = `
+      <div id="toc-panel" class="toc-sidebar">
+        <div class="toc-title"><i class="fa-solid fa-book-open mr-1.5"></i> マニュアルナビ</div>
+        <p class="text-xs text-slate-400">左上の検索窓から全ページの内容をキーワード検索できます。</p>
+      </div>
     `;
   }
+
+  const rightSidebarHtml = `
+    <aside id="right-sidebar" class="right-sidebar">
+      ${tocContent}
+    </aside>
+  `;
 
   return `<!DOCTYPE html>
 <html lang="ja">
@@ -315,6 +336,7 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/search.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
@@ -355,7 +377,7 @@ function renderFullHTML({ title, content, currentFile, headings }) {
     </aside>
 
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main id="main-content-area" class="main-content">
       <article class="article-card markdown-body">
         ${convertedContent}
 
@@ -377,8 +399,63 @@ function renderFullHTML({ title, content, currentFile, headings }) {
       </article>
     </main>
 
-    <!-- Right TOC Sidebar -->
-    ${tocHtml}
+    <!-- Right Sidebar (TOC) -->
+    ${rightSidebarHtml}
+
+    <!-- Search Workspace (3-Column Interactive Search & Preview) -->
+    <div id="search-workspace" class="search-workspace hidden">
+      <!-- Search Results Column (Center) -->
+      <div id="search-results-column" class="search-results-column">
+        <div class="search-results-topbar">
+          <div class="search-results-headline">
+            <i class="fa-solid fa-magnifying-glass text-[#00BCD4]"></i>
+            <span id="search-query-display" class="search-query-display"></span>
+            <span id="search-total-count" class="search-total-badge">0</span>
+          </div>
+          <button type="button" id="search-exit-btn" class="search-exit-btn" title="検索結果を閉じる" aria-label="検索結果を閉じる">
+            <i class="fa-solid fa-xmark"></i> 閉じる
+          </button>
+        </div>
+        <div id="search-results-scroll" class="search-results-scroll"></div>
+      </div>
+
+      <!-- Search Preview Column (Right) -->
+      <div id="search-preview-column" class="search-preview-column">
+        <!-- Empty Placeholder -->
+        <div id="preview-empty-state" class="preview-empty-state">
+          <div class="preview-empty-icon">
+            <i class="fa-solid fa-file-lines text-3xl text-slate-300"></i>
+          </div>
+          <p class="preview-empty-title">プレビューするページを選択してください</p>
+          <p class="preview-empty-subtitle">左の検索結果リストからクリックすると、ここにページ内容が表示されます。</p>
+        </div>
+
+        <!-- Active Preview Area -->
+        <div id="preview-content-container" class="preview-content-container hidden">
+          <!-- Sticky Confirm Bar asking "全画面表示しますか？" -->
+          <div class="preview-confirm-bar">
+            <div class="preview-confirm-info">
+              <i class="fa-solid fa-circle-question text-amber-500"></i>
+              <span>このページを全画面で表示しますか？</span>
+            </div>
+            <div class="preview-confirm-actions">
+              <a id="preview-fullscreen-btn" href="#" class="preview-btn-fullscreen">
+                <i class="fa-solid fa-expand"></i>
+                <span>全画面で開く</span>
+              </a>
+              <button type="button" id="preview-close-btn" class="preview-btn-close" title="プレビューを閉じる" aria-label="プレビューを閉じる">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Preview Content Scroll Body -->
+          <div class="preview-scroll-wrapper">
+            <article id="preview-article-body" class="preview-article-body markdown-body"></article>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Lightbox Modal for Images -->
@@ -501,33 +578,6 @@ function renderFullHTML({ title, content, currentFile, headings }) {
       });
     }
 
-    // Incremental Search in Sidebar
-    const searchInput = document.getElementById('manual-search');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        const navItems = document.querySelectorAll('.nav-sub-items .nav-item');
-        const groups = document.querySelectorAll('.nav-group');
-
-        navItems.forEach(item => {
-          const text = item.textContent.toLowerCase();
-          if (!query || text.includes(query)) {
-            item.style.display = 'flex';
-          } else {
-            item.style.display = 'none';
-          }
-        });
-
-        groups.forEach(g => {
-          const sub = g.querySelector('.nav-sub-items');
-          if (query) {
-            g.classList.add('is-open');
-            if (sub) sub.classList.remove('hidden');
-          }
-        });
-      });
-    }
-
     // Make table rows with internal anchor links clickable as full rows
     document.querySelectorAll('.markdown-body table tbody tr').forEach(tr => {
       const anchor = tr.querySelector('a[href^="#"]');
@@ -601,9 +651,25 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 </html>`;
 }
 
-// Build all markdown files
+// Map file to module info
+function getFileModuleInfo(file) {
+  for (const mod of MODULES) {
+    if (mod.portal === file) {
+      return { module: mod.name, icon: mod.icon };
+    }
+    const foundPage = mod.pages.find(p => p.file === file);
+    if (foundPage) {
+      return { module: mod.name, icon: mod.icon };
+    }
+  }
+  return { module: 'マニュアル', icon: 'fa-solid fa-book' };
+}
+
+// Build all markdown files & search index
 const mdFiles = fs.readdirSync(__dirname).filter(f => f.endsWith('.md') && f !== 'README.md');
 console.log(`Building ${mdFiles.length} modern manual pages...`);
+
+const searchIndex = [];
 
 mdFiles.forEach(file => {
   const filePath = path.join(__dirname, file);
@@ -622,7 +688,7 @@ mdFiles.forEach(file => {
     }
   }
 
-  // Extract headings for TOC
+  // Extract headings for TOC & search
   const headings = [];
   const headingMatches = contentMd.matchAll(/^(#{2,3})\s+(.+)$/gm);
   for (const m of headingMatches) {
@@ -632,6 +698,29 @@ mdFiles.forEach(file => {
     const id = encodeURIComponent(cleanText.toLowerCase().replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g, '-'));
     headings.push({ level, text: cleanText, id });
   }
+
+  // Extract plain text for full-text search index
+  const plainText = contentMd
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]+`/g, ' ')
+    .replace(/!\[([^\]]*)\]\([^\)]+\)/g, ' $1 ')
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, ' $1 ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[*_#~>|\\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const moduleInfo = getFileModuleInfo(file);
+  const pageUrl = getHtmlFileName(file);
+
+  searchIndex.push({
+    title,
+    url: pageUrl,
+    module: moduleInfo.module,
+    moduleIcon: moduleInfo.icon,
+    headings: headings.map(h => h.text),
+    content: plainText
+  });
 
   const htmlContent = marked.parse(contentMd);
   const pageHtml = renderFullHTML({
@@ -652,5 +741,10 @@ mdFiles.forEach(file => {
     fs.writeFileSync(path.join(DIST_DIR, 'index.html'), pageHtml, 'utf-8');
   }
 });
+
+// Output search-index.json
+const searchIndexPath = path.join(DIST_DIR, 'search-index.json');
+fs.writeFileSync(searchIndexPath, JSON.stringify(searchIndex), 'utf-8');
+console.log(`Generated search index with ${searchIndex.length} documents at dist/search-index.json (${Math.round(fs.statSync(searchIndexPath).size / 1024)} KB)`);
 
 console.log('Successfully generated modern 3-column documentation in dist/!');
