@@ -492,22 +492,35 @@ function renderFullHTML({ title, content, currentFile, headings }) {
 
   <!-- Global Footer -->
   <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-5">
       <div class="flex items-center space-x-3">
         <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-6 w-auto object-contain opacity-90">
         <span class="text-slate-400 text-xs hidden sm:inline">— Educational DX Solution for Medical Schools</span>
       </div>
-      <div class="flex items-center space-x-4 text-slate-400">
-        <a href="sitemap.html" class="hover:text-cyan-400 transition">サイトマップ</a>
-        <span>|</span>
-        <a href="https://creativesd.net/" target="_blank" rel="noopener" class="hover:text-cyan-400 transition">CSD 公式サイト</a>
-        <span>|</span>
-        <a href="privacy-policy.html" class="hover:text-cyan-400 transition">プライバシーポリシー</a>
+
+      <!-- Links & SNS Icons -->
+      <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-slate-400">
+        <div class="flex items-center space-x-4">
+          <a href="sitemap.html" class="hover:text-cyan-400 transition">サイトマップ</a>
+          <span>|</span>
+          <a href="https://creativesd.net/" target="_blank" rel="noopener" class="hover:text-cyan-400 transition">CSD 公式サイト</a>
+          <span>|</span>
+          <a href="privacy-policy.html" class="hover:text-cyan-400 transition">プライバシーポリシー</a>
+        </div>
+
+        <!-- SNS Links from creativesd.net -->
+        <div class="flex items-center space-x-5 sm:pl-5 sm:border-l sm:border-slate-700">
+          <a href="https://lin.ee/tqB9kPc" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-[#06C755] transition-colors" title="LINE公式アカウント" aria-label="LINE公式アカウント"><i class="fa-brands fa-line text-2xl"></i></a>
+          <a href="https://note.com/csdkazuhiro" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex justify-center items-center border border-slate-400 rounded-md w-7 h-7 text-xs font-bold hover:border-white" title="note" aria-label="note">note</a>
+          <a href="https://www.facebook.com/otsukazuhiro/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-[#1877F2] transition-colors" title="Facebook" aria-label="Facebook"><i class="fa-brands fa-facebook text-2xl"></i></a>
+          <a href="https://www.instagram.com/csdkotsuka/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-[#E4405F] transition-colors" title="Instagram" aria-label="Instagram"><i class="fa-brands fa-instagram text-2xl"></i></a>
+          <a href="https://www.linkedin.com/in/csdkotsuka/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-[#0A66C2] transition-colors" title="LinkedIn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin text-2xl"></i></a>
+        </div>
       </div>
     </div>
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 text-center text-slate-500 mt-4 text-[11px]">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 text-center text-slate-500 mt-5 pt-4 border-t border-slate-800/80 text-[11px]">
       © 2026 Creative System Design. All rights reserved.<br>
-      ※「INTEVE SCHOOL」は、Creative System Design（代表：大塚和宏）の登録商標（第6994552号）です。
+      ※「INTEVE SCHOOL®」は、Creative System Design（代表：大塚和宏）の登録商標（第6994552号）です。
     </div>
   </footer>
 
