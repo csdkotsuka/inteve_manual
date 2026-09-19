@@ -225,9 +225,9 @@ const MODULES = [
 ];
 
 function getHtmlFileName(mdFile) {
-  if (mdFile === 'top.md' || mdFile === 'index.md') return 'index.html';
+  if (mdFile === 'top.md' || mdFile === 'index.md') return '/index.html';
   const base = path.basename(mdFile, '.md');
-  return `${encodeURIComponent(base)}.html`;
+  return `/${encodeURIComponent(base)}.html`;
 }
 
 // Build Sidebar HTML with exclusive accordion support
@@ -243,10 +243,10 @@ function renderSidebar(currentFile) {
     </div>
   </div>
   <div class="sidebar-nav" id="sidebar-nav-container">
-    <a href="index.html" class="nav-item ${currentFile === 'top.md' ? 'active' : ''}">
+    <a href="/index.html" class="nav-item ${currentFile === 'top.md' ? 'active' : ''}">
       <span class="flex items-center gap-2"><i class="fa-solid fa-house text-xs opacity-70"></i> トップページ</span>
     </a>
-    <a href="sitemap.html" class="nav-item ${currentFile === 'sitemap.md' ? 'active' : ''}">
+    <a href="/sitemap.html" class="nav-item ${currentFile === 'sitemap.md' ? 'active' : ''}">
       <span class="flex items-center gap-2 text-amber-600 font-semibold"><i class="fa-solid fa-map text-xs"></i> 機能サイトマップ</span>
     </a>
     <div class="nav-group-title">機能モジュール一覧</div>
@@ -300,14 +300,17 @@ function renderSidebar(currentFile) {
 function renderFullHTML({ title, content, currentFile, headings }) {
   const sidebarHtml = renderSidebar(currentFile);
 
-  // Convert markdown links
-  const convertedContent = content.replace(/href=\"([^\"]+)\.md(#[^\"]*)?\"/g, (match, p1, p2) => {
-    const hash = p2 || '';
-    if (p1 === 'top' || p1 === 'index') {
-      return `href="index.html${hash}"`;
-    }
-    return `href="${encodeURIComponent(decodeURIComponent(p1))}.html${hash}"`;
-  });
+  // Convert markdown links & ensure images use root-relative paths
+  const convertedContent = content
+    .replace(/src=\"images\//g, 'src="/images/')
+    .replace(/href=\"images\//g, 'href="/images/')
+    .replace(/href=\"([^\"]+)\.md(#[^\"]*)?\"/g, (match, p1, p2) => {
+      const hash = p2 || '';
+      if (p1 === 'top' || p1 === 'index') {
+        return `href="/index.html${hash}"`;
+      }
+      return `href="/${encodeURIComponent(decodeURIComponent(p1))}.html${hash}"`;
+    });
 
   // Right Sidebar (TOC)
   let tocContent = '';
@@ -346,13 +349,13 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title ? `${title} | ` : ''}INTEVE SCHOOL 運用マニュアル</title>
   <meta name="description" content="医療系専門学校・大学向け教育DXソリューション INTEVE SCHOOL の公式運用マニュアルです。">
-  <link rel="icon" type="image/png" href="images/favicon.png">
-  <link rel="apple-touch-icon" href="images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="apple-touch-icon" href="/images/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/search.js" defer></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/search.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
@@ -363,17 +366,17 @@ function renderFullHTML({ title, content, currentFile, headings }) {
         <button id="mobile-menu-toggle" class="lg:hidden text-white hover:text-cyan-300 p-1.5 rounded-md focus:outline-none">
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
-        <a href="index.html" class="flex items-center space-x-2.5 transition group">
-          <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-10 sm:h-12 w-auto object-contain transition group-hover:opacity-90">
+        <a href="/index.html" class="flex items-center space-x-2.5 transition group">
+          <img src="/images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-10 sm:h-12 w-auto object-contain transition group-hover:opacity-90">
           <span class="text-[11px] font-bold tracking-wider uppercase bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full border border-cyan-400/30 hidden sm:inline">Manual</span>
         </a>
       </div>
       <nav class="flex items-center space-x-3 sm:space-x-5 text-sm font-medium">
-        <a href="index.html" class="text-white/90 hover:text-cyan-300 transition flex items-center gap-1.5 hidden sm:flex">
+        <a href="/index.html" class="text-white/90 hover:text-cyan-300 transition flex items-center gap-1.5 hidden sm:flex">
           <i class="fa-solid fa-house text-xs"></i>
           <span>トップ</span>
         </a>
-        <a href="sitemap.html" class="text-white/90 hover:text-cyan-300 transition flex items-center gap-1.5">
+        <a href="/sitemap.html" class="text-white/90 hover:text-cyan-300 transition flex items-center gap-1.5">
           <i class="fa-solid fa-map text-xs text-amber-400"></i>
           <span>サイトマップ</span>
         </a>
@@ -494,18 +497,18 @@ function renderFullHTML({ title, content, currentFile, headings }) {
   <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-5">
       <div class="flex items-center space-x-3">
-        <img src="images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-6 w-auto object-contain opacity-90">
+        <img src="/images/inteve_logo_white.png" alt="INTEVE SCHOOL" class="h-6 w-auto object-contain opacity-90">
         <span class="text-slate-400 text-xs hidden sm:inline">— Educational DX Solution for Medical Schools</span>
       </div>
 
       <!-- Links & SNS Icons -->
       <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-slate-400">
         <div class="flex items-center space-x-4">
-          <a href="sitemap.html" class="hover:text-cyan-400 transition">サイトマップ</a>
+          <a href="/sitemap.html" class="hover:text-cyan-400 transition">サイトマップ</a>
           <span>|</span>
           <a href="https://creativesd.net/" target="_blank" rel="noopener" class="hover:text-cyan-400 transition">CSD 公式サイト</a>
           <span>|</span>
-          <a href="privacy-policy.html" class="hover:text-cyan-400 transition">プライバシーポリシー</a>
+          <a href="/privacy-policy.html" class="hover:text-cyan-400 transition">プライバシーポリシー</a>
         </div>
 
         <!-- SNS Links from creativesd.net -->
@@ -777,13 +780,72 @@ mdFiles.forEach(file => {
   });
 
   const baseName = path.basename(file, '.md');
-  const outName = `${encodeURIComponent(baseName)}.html`;
-  fs.writeFileSync(path.join(DIST_DIR, outName), pageHtml, 'utf-8');
-  if (outName !== `${baseName}.html`) {
-    fs.writeFileSync(path.join(DIST_DIR, `${baseName}.html`), pageHtml, 'utf-8');
+
+  // Collect aliases for full URL compatibility (FileMaker layout titles with spaces vs hyphens)
+  const aliases = new Set();
+  aliases.add(baseName);
+  aliases.add(baseName.replace(/-/g, ' '));
+  aliases.add(baseName.replace(/\s+/g, '-'));
+
+  if (fmMatch) {
+    const fm = fmMatch[1];
+    const slugMatch = fm.match(/^slug:\s*\"?(.*?)\"?$/m);
+    if (slugMatch) {
+      const slugVal = slugMatch[1].trim().replace(/\.md$/, '');
+      if (slugVal && !slugVal.includes('/') && !slugVal.includes('\\')) {
+        aliases.add(slugVal);
+        aliases.add(slugVal.replace(/-/g, ' '));
+        aliases.add(slugVal.replace(/\s+/g, '-'));
+      }
+    }
   }
 
-  if (file === 'top.md') {
+  if (title && !title.includes('/') && !title.includes('\\')) {
+    aliases.add(title);
+    aliases.add(title.replace(/-/g, ' '));
+    aliases.add(title.replace(/\s+/g, '-'));
+  }
+
+  const writeHtmlTarget = (name) => {
+    if (!name || typeof name !== 'string') return;
+    const cleanName = name.trim();
+    if (!cleanName || cleanName === '.' || cleanName.includes('/') || cleanName.includes('\\')) return;
+
+    // 1. Raw name HTML file (if filename byte length fits file system limit)
+    if (Buffer.byteLength(`${cleanName}.html`, 'utf-8') <= 250) {
+      fs.writeFileSync(path.join(DIST_DIR, `${cleanName}.html`), pageHtml, 'utf-8');
+
+      // Directory with index.html (supports URLs ending with a trailing slash e.g. /実習管理%20指導者会議/)
+      if (Buffer.byteLength(cleanName, 'utf-8') <= 250) {
+        const dirPath = path.join(DIST_DIR, cleanName);
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
+        }
+        fs.writeFileSync(path.join(dirPath, 'index.html'), pageHtml, 'utf-8');
+      }
+    }
+
+    // 2. URI-encoded HTML file (if encoded byte length fits file system limit)
+    const encName = encodeURIComponent(cleanName);
+    if (encName !== cleanName && Buffer.byteLength(`${encName}.html`, 'utf-8') <= 250) {
+      fs.writeFileSync(path.join(DIST_DIR, `${encName}.html`), pageHtml, 'utf-8');
+
+      // URI-encoded directory with index.html
+      if (Buffer.byteLength(encName, 'utf-8') <= 250) {
+        const encDirPath = path.join(DIST_DIR, encName);
+        if (!fs.existsSync(encDirPath)) {
+          fs.mkdirSync(encDirPath, { recursive: true });
+        }
+        fs.writeFileSync(path.join(encDirPath, 'index.html'), pageHtml, 'utf-8');
+      }
+    }
+  };
+
+  aliases.forEach(alias => {
+    writeHtmlTarget(alias);
+  });
+
+  if (file === 'top.md' || file === 'index.md') {
     fs.writeFileSync(path.join(DIST_DIR, 'index.html'), pageHtml, 'utf-8');
   }
 });

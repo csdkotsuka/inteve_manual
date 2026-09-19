@@ -55,7 +55,7 @@
       if (searchIndex || isLoadingIndex) return searchIndex;
       isLoadingIndex = true;
       try {
-        const res = await fetch('search-index.json');
+        const res = await fetch('/search-index.json');
         if (res.ok) {
           searchIndex = await res.json();
           return searchIndex;
@@ -116,7 +116,8 @@
       // Show preview container
       if (previewEmptyState) previewEmptyState.classList.add('hidden');
       if (previewContentContainer) previewContentContainer.classList.remove('hidden');
-      if (previewFullscreenBtn) previewFullscreenBtn.href = pageUrl;
+      const resolvedUrl = pageUrl.startsWith('/') ? pageUrl : '/' + pageUrl;
+      if (previewFullscreenBtn) previewFullscreenBtn.href = resolvedUrl;
 
       // Show loading indicator
       if (previewArticleBody) {
@@ -129,12 +130,12 @@
       }
 
       try {
-        let htmlText = pageHtmlCache.get(pageUrl);
+        let htmlText = pageHtmlCache.get(resolvedUrl);
         if (!htmlText) {
-          const res = await fetch(pageUrl);
+          const res = await fetch(resolvedUrl);
           if (!res.ok) throw new Error(`HTTP error ${res.status}`);
           htmlText = await res.text();
-          pageHtmlCache.set(pageUrl, htmlText);
+          pageHtmlCache.set(resolvedUrl, htmlText);
         }
 
         // Only update if this is still the requested preview
